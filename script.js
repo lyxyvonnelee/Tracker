@@ -11,7 +11,7 @@ fetch(`https://financialmodelingprep.com/api/v3/quote/${STOCK_SYMBOL}?apikey=${A
         stockInfoDiv.innerHTML = `
             <h2>${stock.name} (${stock.symbol})</h2>
             <p>Price: $${stock.price}</p>
-            <p>Change: ${stock.change} (${stock.changePercent}%)</p>
+            <p>Change: ${stock.change} (${stock.changesPercentage}%)</p>
         `;
     })
     .catch(error => {
@@ -22,9 +22,19 @@ fetch(`https://financialmodelingprep.com/api/v3/quote/${STOCK_SYMBOL}?apikey=${A
 fetch(`https://financialmodelingprep.com/api/v3/historical-price-full/${STOCK_SYMBOL}?apikey=${API_KEY}`)
     .then(response => response.json())
     .then(data => {
-        const historicalData = data.historical.slice(-30); // Get the last 30 days for simplicity
+        console.log("Historical data:", data); // Log the entire historical data object for inspection
+
+        const historicalData = data.historical.slice(0,30).reverse(); // Get the last 30 days for simplicity
+        console.log("Last 30 days:", historicalData); // Log the last 30 days of data
+
         const dates = historicalData.map(entry => entry.date);
         const prices = historicalData.map(entry => entry.close);
+        const openPrices = historicalData.map(entry => entry.open);
+        const highPrices = historicalData.map(entry => entry.high);
+        const lowPrices = historicalData.map(entry => entry.low);
+
+        console.log("Dates:", dates); // Log the dates array
+        console.log("Prices:", prices); // Log the prices array
 
         const ctx = document.getElementById('stockChart').getContext('2d');
         new Chart(ctx, {
@@ -35,6 +45,21 @@ fetch(`https://financialmodelingprep.com/api/v3/historical-price-full/${STOCK_SY
                     label: `${STOCK_SYMBOL} Stock Price`,
                     data: prices,
                     borderColor: '#007bff',
+                    fill: false
+                },{
+                    label: `${STOCK_SYMBOL} Open Price`,
+                    data: openPrices,
+                    borderColor: '#28a745',
+                    fill: false
+                },{
+                    label: `${STOCK_SYMBOL} High Price`,
+                    data: highPrices,
+                    borderColor: '#ffc107',
+                    fill: false
+                },{
+                    label: `${STOCK_SYMBOL} Low Price`,
+                    data: lowPrices,
+                    borderColor: '#dc3545',
                     fill: false
                 }]
             },
